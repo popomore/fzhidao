@@ -38,7 +38,6 @@ def parse(d):
        tdlist.map(fetch) 
        return True
     else:
-       log.error('parse error')
        return False
         
 
