@@ -7,9 +7,9 @@ import logging
 import codecs
 
 log = logging.getLogger()
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.INFO)
 ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
+ch.setLevel(logging.INFO)
 ch.setFormatter(logging.Formatter('[%(levelname)s] %(funcName)s: %(message)s'))
 log.addHandler(ch)
 
