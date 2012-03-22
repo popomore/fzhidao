@@ -1,4 +1,4 @@
-## OVERVIEW
+## Overview
 
 通过关键字抓取百度知道的问题，最多1000条。程序运行后会在当前目录生成一个result.csv的文件
 
@@ -6,7 +6,7 @@
 
 	git clone git@github.com:popomore/fzhidao.git
 	cd fzhidao
-	python setup.py install
+	sudo python setup.py install
 
 ## Usage
 
