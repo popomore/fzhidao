@@ -26,19 +26,55 @@ def fetch(i, o):
         date = re.sub(r'.*(\d{4}-\d{1,2}-\d{1,2}).*',r'\1',date)
         datetime1 = time.strptime(date,'%Y-%m-%d')
         if datetime1 > datetime2:
-            log.debug('add' + date)
-            a.append((link,date))
+            try:
+                a.index((link,date))
+            except ValueError:
+                log.debug('add' + date)
+                a.append((link,date))
     except:
         log.error('fetch error')
         pass
 
-def parse(d):
+def parselist(d):
     tdlist = d('td.f')
     if tdlist:
        tdlist.map(fetch) 
        return True
     else:
        return False
+
+def parseFile(element):
+    iurl = 'http://zhidao.baidu.com'+element[0]
+    if not element[0]:
+        return False
+
+    try:
+        zhidaolist = urllib.urlopen(iurl)
+    except:
+        log.error('get error ' + iurl)
+        return False
+
+    if(zhidaolist.getcode() == 200):
+        log.info('parsing 200 ' + iurl)
+        content = zhidaolist.read().decode('gbk')
+        d = pq(content)   
+        title = d('h1#question-title').text()
+        name = d('#question-box .user-name').text()
+        date = element[1]
+        cont = d('#question-content').text()
+        try:
+            cont = re.sub(r'\r|\n',r' ',cont)
+        except:
+            log.error('parse error')
+            pass
+        r = "%s | %s | %s | %s | %s\n" % (title, name, date, iurl, cont)
+        log.debug(r)
+        output.write(r)
+    else:
+        log.error('404')
+    pass
+
+    return True
         
 
 def main():
@@ -71,7 +107,7 @@ def main():
             continue
 
         d = pq(content)   
-        if parse(d):
+        if parselist(d):
             pass
         else:
             log.info('end at ' + str(i))
@@ -79,33 +115,8 @@ def main():
 
     for i, element in enumerate(a):
         log.debug(element)
-        iurl = 'http://zhidao.baidu.com'+element[0]
-        if not element[0]:
+        if(parseFile(element)==False):
             continue
-        try:
-            zhidaolist = urllib.urlopen(iurl)
-        except:
-            log.error('get error ' + iurl)
-            continue
-        if(zhidaolist.getcode() == 200):
-            log.info('parsing 200 ' + iurl)
-            content = zhidaolist.read().decode('gbk')
-            d = pq(content)
-            title = d('h1#question-title').text()
-            name = d('#question-box .user-name').text()
-            date = element[1]
-            cont = d('#question-content').text()
-            try:
-                cont = re.sub(r'\n',r' ',cont)
-            except:
-                log.error('parse error')
-                pass
-            r = "%s | %s | %s | %s | %s\n" % (title, name, date, iurl, cont)
-            log.debug(r)
-            output.write(r)
-        else:
-            log.error('404')
-        pass
 
     output.close()
     
